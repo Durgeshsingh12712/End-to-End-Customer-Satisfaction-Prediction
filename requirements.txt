@@ -1,0 +1,16 @@
+pandas
+numpy
+flask
+scikit-learn
+matplotlib
+seaborn
+dill
+ensure
+box
+tqdm
+python-box
+scipy
+imblearn
+joblib
+PyYAML
+-e .
