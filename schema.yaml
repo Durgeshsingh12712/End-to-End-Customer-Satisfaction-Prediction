@@ -1,0 +1,36 @@
+columns:
+  - Ticket ID
+  - Customer Name
+  - Customer Email
+  - Customer Age
+  - Customer Gender
+  - Product Purchased
+  - Date of Purchase
+  - Ticket Type
+  - Ticket Subject
+  - Ticket Description
+  - Ticket Status
+  - Resolution
+  - Ticket Priority
+  - Ticket Channel
+  - First Response Time
+  - Time to Resolution
+  - Customer Satisfaction Rating
+
+numerical_columns:
+  - Customer Age
+  - First Response Time
+  - Time to Resolution
+  - Customer Satisfaction Rating
+
+categorical_columns:
+  - Customer Gender
+  - Product Purchased
+  - Ticket Type
+  - Ticket Subject
+  - Ticket Status
+  - Ticket Priority
+  - Ticket Channel
+
+target_column:
+  - Ticket Priority
