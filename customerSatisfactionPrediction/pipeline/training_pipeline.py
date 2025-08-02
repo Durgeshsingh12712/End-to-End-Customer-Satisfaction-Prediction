@@ -3,6 +3,7 @@ from customerSatisfactionPrediction.loggers import logger
 from customerSatisfactionPrediction.components import DataIngestion
 from customerSatisfactionPrediction.components import DataValidation
 from customerSatisfactionPrediction.components import DataTransformation
+from customerSatisfactionPrediction.components import ModelTrainer
 
 
 class TrainingPipeline:
@@ -26,3 +27,9 @@ class TrainingPipeline:
         data_tranformation_config = config.get_data_transformation_config()
         data_tranformation = DataTransformation(config=data_tranformation_config)
         data_tranformation_artifact = data_tranformation.initiate_data_transformation()
+    
+    def model_trainer(self):
+        config = ConfigurationManager()
+        model_trainer_config = config.get_model_trainer_config()
+        model_trainer = ModelTrainer(config=model_trainer_config)
+        model_trainer_artifact = model_trainer.train()
