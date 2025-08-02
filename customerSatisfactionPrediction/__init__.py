@@ -5,8 +5,10 @@ from .constants.constant import *
 from .entity.config_entity import DataIngestionConfig, DataValidationConfig
 from .entity.artifacts_entity import DataIngestionArtifact, DataValidationArtifact
 from .configure.configuration import ConfigurationManager
+from .pipeline.training_pipeline import TrainingPipeline
 from .components.data_ingestion import DataIngestion
 from .components.data_validation import DataValidation
+from .components.data_transformation import DataTransformation
 
 __all__ = [
     'logger',
@@ -24,6 +26,8 @@ __all__ = [
     "DataIngestionArtifact",
     "DataValidationArtifact",
     "ConfigurationManager",
+    "TrainingPipeline",
     "DataIngestion",
-    "DataValidation"
+    "DataValidation",
+    "DataTransformation"
 ]

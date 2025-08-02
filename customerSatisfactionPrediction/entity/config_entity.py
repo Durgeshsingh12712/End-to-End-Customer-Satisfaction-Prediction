@@ -14,3 +14,11 @@ class DataValidationConfig:
     root_dir: Path
     STATUS_FILE: str
     unzip_data_dir: Path
+
+@dataclass(frozen=True)
+class DataTransformationConfig:
+    root_dir: Path
+    data_path: Path
+    tokenizer_name: str
+    max_features: int
+    target_column: str
