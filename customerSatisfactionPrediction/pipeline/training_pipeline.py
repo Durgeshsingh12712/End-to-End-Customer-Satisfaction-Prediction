@@ -4,6 +4,7 @@ from customerSatisfactionPrediction.components import DataIngestion
 from customerSatisfactionPrediction.components import DataValidation
 from customerSatisfactionPrediction.components import DataTransformation
 from customerSatisfactionPrediction.components import ModelTrainer
+from customerSatisfactionPrediction.components import ModelEvaluation
 
 
 class TrainingPipeline:
@@ -33,3 +34,10 @@ class TrainingPipeline:
         model_trainer_config = config.get_model_trainer_config()
         model_trainer = ModelTrainer(config=model_trainer_config)
         model_trainer_artifact = model_trainer.train()
+    
+    def model_evaluation(self):
+        config = ConfigurationManager()
+        model_evaluation_config = config.get_model_evaluation_config()
+        model_evaluation = ModelEvaluation(config=model_evaluation_config)
+        model_evaluation_artifact = model_evaluation.initiate_model_evaluation()
+        

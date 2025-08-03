@@ -15,12 +15,14 @@ from .entity.config_entity import (
     DataValidationConfig,
     DataTransformationConfig,
     ModelTrainerConfig,
+    ModelEvaluationConfig
 ) 
 from .entity.artifacts_entity import (
     DataIngestionArtifact, 
     DataValidationArtifact,
     DataTransformationArtifact,
     ModelTrainerArtifact,
+    ModelEvaluationArtifact
 )
 from .configure.configuration import ConfigurationManager
 from .pipeline.training_pipeline import TrainingPipeline
@@ -29,6 +31,7 @@ from .components.data_ingestion import DataIngestion
 from .components.data_validation import DataValidation
 from .components.data_transformation import DataTransformation
 from .components.model_trainer import ModelTrainer
+from .components.model_evaluation import ModelEvaluation
 
 __all__ = [
     'logger',
@@ -49,10 +52,13 @@ __all__ = [
     "DataTransformationArtifact",
     "ModelTrainerConfig",
     "ModelTrainerArtifact",
+    "ModelEvaluationConfig",
+    "ModelEvaluationArtifact",
     "ConfigurationManager",
     "TrainingPipeline",
     "DataIngestion",
     "DataValidation",
     "DataTransformation",
     "ModelTrainer",
+    "ModelEvaluation"
 ]
