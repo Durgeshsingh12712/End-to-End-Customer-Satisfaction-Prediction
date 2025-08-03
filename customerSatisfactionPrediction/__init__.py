@@ -26,6 +26,7 @@ from .entity.artifacts_entity import (
 )
 from .configure.configuration import ConfigurationManager
 from .pipeline.training_pipeline import TrainingPipeline
+from .pipeline.prediction_pipeline import PredictionPipeline
 
 from .components.data_ingestion import DataIngestion
 from .components.data_validation import DataValidation
@@ -60,5 +61,6 @@ __all__ = [
     "DataValidation",
     "DataTransformation",
     "ModelTrainer",
-    "ModelEvaluation"
+    "ModelEvaluation",
+    "PredictionPipeline"
 ]

@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+        <div class="card">
+            <div class="card-header text-center p">
+                <h2 class="mb-0">
+                    <i class="fas fa-magic me-2"></i>
+                    Predict Ticket Priority
+                </h2>
+                <p class="mb-0 mt-2 opacity-75">
+                    Enter ticket details to get an AI-powered priority prediction
+                </p>
+            </div>
+            
+            <div class="card-body">
+                {% if not pipeline_loaded %}
+                    <div class="alert alert-warning" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Warning:</strong> The prediction pipeline is not available. 
+                        Please ensure the model files are properly loaded.
+                    </div>
+                {% endif %}
+
+                <form method="POST" action="{{ url_for('predict') }}" id="predictionForm">
+                    <!-- Ticket Type -->
+                    <div class="mb-4">
+                        <label for="ticket_type" class="form-label">
+                            <i class="fas fa-tags me-1"></i>
+                            Ticket Type <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-select" id="ticket_type" name="ticket_type" required>
+                            <option value="">Select ticket type...</option>
+                            {% for ticket_type in ticket_types %}
+                                <option value="{{ ticket_type }}">{{ ticket_type }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Ticket Subject -->
+                    <div class="mb-4">
+                        <label for="ticket_subject" class="form-label">
+                            <i class="fas fa-heading me-1"></i>
+                            Subject <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="ticket_subject" 
+                               name="ticket_subject" 
+                               placeholder="Brief description of the issue..."
+                               maxlength="200"
+                               required>
+                        <div class="form-text">
+                            Enter a clear, concise subject line (max 200 characters)
+                        </div>
+                    </div>
+
+                    <!-- Ticket Description -->
+                    <div class="mb-4">
+                        <label for="ticket_description" class="form-label">
+                            <i class="fas fa-file-alt me-1"></i>
+                            Description <span class="text-danger">*</span>
+                        </label>
+                        <textarea class="form-control" 
+                                  id="ticket_description" 
+                                  name="ticket_description" 
+                                  rows="6" 
+                                  placeholder="Detailed description of the issue, including steps to reproduce, error messages, and any relevant context..."
+                                  maxlength="2000"
+                                  required></textarea>
+                        <div class="form-text">
+                            Provide detailed information to help the model make an accurate prediction (max 2000 characters)
+                        </div>
+                    </div>
+
+                    <!-- Product Purchased (Optional) -->
+                    <div class="mb-4">
+                        <label for="product_purchased" class="form-label">
+                            <i class="fas fa-shopping-cart me-1"></i>
+                            Product Purchased (Optional)
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="product_purchased" 
+                               name="product_purchased" 
+                               placeholder="Name of the product or service related to this ticket..."
+                               maxlength="100">
+                        <div class="form-text">
+                            If applicable, specify the product or service this ticket relates to
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" 
+                                class="btn btn-primary btn-lg" 
+                                {% if not pipeline_loaded %}disabled{% endif %}>
+                            <span class="loading-spinner spinner-border spinner-border-sm me-2" role="status"></span>
+                            <span class="btn-text">
+                                <i class="fas fa-brain me-2"></i>
+                                Predict Priority
+                            </span>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Help Section -->
+                <div class="mt-5">
+                    <h5 class="text-muted mb-3">
+                        <i class="fas fa-question-circle me-2"></i>
+                        How it works
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="text-center">
+                                <div class="text-primary mb-2">
+                                    <i class="fas fa-brain fa-2x"></i>
+                                </div>
+                                <h6>AI Analysis</h6>
+                                <small class="text-muted">
+                                    Machine learning model analyzes your ticket content
+                                </small>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="text-center">
+                                <div class="text-success mb-2">
+                                    <i class="fas fa-chart-line fa-2x"></i>
+                                </div>
+                                <h6>Priority Prediction</h6>
+                                <small class="text-muted">
+                                    Gets priority level with confidence score
+                                </small>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="text-center">
+                                <div class="text-info mb-2">
+                                    <i class="fas fa-tachometer-alt fa-2x"></i>
+                                </div>
+                                <h6>Instant Results</h6>
+                                <small class="text-muted">
+                                    Immediate priority assignment for faster routing
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Character counters
+        const subjectInput = document.getElementById('ticket_subject');
+        const descriptionTextarea = document.getElementById('ticket_description');
+        const productInput = document.getElementById('product_purchased');
+
+        function addCharacterCounter(element, maxLength) {
+            const counter = document.createElement('div');
+            counter.className = 'form-text text-end';
+            counter.style.fontSize = '0.8em';
+            element.parentNode.appendChild(counter);
+
+            function updateCounter() {
+                const remaining = maxLength - element.value.length;
+                counter.textContent = `${element.value.length}/${maxLength} characters`;
+                counter.className = remaining < 50 ? 'form-text text-end text-warning' : 'form-text text-end text-muted';
+            }
+
+            element.addEventListener('input', updateCounter);
+            updateCounter();
+        }
+
+        addCharacterCounter(subjectInput, 200);
+        addCharacterCounter(descriptionTextarea, 2000);
+        addCharacterCounter(productInput, 100);
+
+        // Form validation
+        const form = document.getElementById('predictionForm');
+        form.addEventListener('submit', function(e) {
+            const requiredFields = form.querySelectorAll('[required]');
+            let isValid = true;
+
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+
+            if (!isValid) {
+                e.preventDefault();
+                alert('Please fill in all required fields.');
+            }
+        });
+
+        // Real-time validation feedback
+        const inputs = form.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            input.addEventListener('blur', function() {
+                if (this.hasAttribute('required') && !this.value.trim()) {
+                    this.classList.add('is-invalid');
+                } else {
+                    this.classList.remove('is-invalid');
+                }
+            });
+
+            input.addEventListener('input', function() {
+                if (this.classList.contains('is-invalid') && this.value.trim()) {
+                    this.classList.remove('is-invalid');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

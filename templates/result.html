@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+
+{% block title %}Prediction Result - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Main Result Card -->
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header text-center">
+                <h2 class="mb-0">
+                    <i class="fas fa-chart-line me-2"></i>
+                    Prediction Result
+                </h2>
+                <small class="opacity-75">Generated on {{ result.timestamp }}</small>
+            </div>
+            
+            <div class="card-body">
+                <!-- Priority Prediction -->
+                <div class="text-center mb-4">
+                    <h3 class="mb-3">Predicted Priority</h3>
+                    {% set priority_colors = {
+                        'High': 'danger',
+                        'Medium': 'warning', 
+                        'Low': 'success',
+                        'Critical': 'dark',
+                        'Urgent': 'danger'
+                    } %}
+                    <span class="priority-badge badge bg-{{ priority_colors.get(result.predicted_priority, 'primary') }}">
+                        {% if result.predicted_priority in ['High', 'Critical', 'Urgent'] %}
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                        {% elif result.predicted_priority == 'Medium' %}
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                        {% else %}
+                            <i class="fas fa-check-circle me-2"></i>
+                        {% endif %}
+                        {{ result.predicted_priority }}
+                    </span>
+                </div>
+
+                <!-- Confidence Score -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="mb-0">Confidence Score</h5>
+                        <span class="badge bg-info">{{ "%.1f" | format(result.confidence * 100) }}%</span>
+                    </div>
+                    <div class="confidence-bar">
+                        <div class="confidence-indicator" style="width: {{ result.confidence * 100 }}%"></div>
+                    </div>
+                    <div class="form-text mt-2">
+                        {% if result.confidence > 0.9 %}
+                            <i class="fas fa-check-circle text-success me-1"></i>
+                            Very high confidence - the model is very certain about this prediction
+                        {% elif result.confidence > 0.7 %}
+                            <i class="fas fa-thumbs-up text-info me-1"></i>
+                            Good confidence - the model is reasonably certain about this prediction
+                        {% elif result.confidence > 0.5 %}
+                            <i class="fas fa-question-circle text-warning me-1"></i>
+                            Moderate confidence - consider manual review for edge cases
+                        {% else %}
+                            <i class="fas fa-exclamation-triangle text-danger me-1"></i>
+                            Low confidence - manual review recommended
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Probability Distribution -->
+                <div class="mb-4">
+                    <h5 class="mb-3">Priority Probability Distribution</h5>
+                    {% for priority, probability in result.probability_distribution.items() %}
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-semibold">{{ priority }}</span>
+                            <div style="width: 60%;">
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar bg-{{ priority_colors.get(priority, 'primary') }}" 
+                                         role="progressbar" 
+                                         style="width: {{ probability * 100 }}%"
+                                         aria-valuenow="{{ probability * 100 }}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                        {{ "%.1f" | format(probability * 100) }}%
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Technical Details -->
+                <div class="feature-info">
+                    <h6 class="mb-2">
+                        <i class="fas fa-cogs me-2"></i>
+                        Technical Details
+                    </h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <small><strong>Features processed:</strong> {{ result.feature_count }}</small>
+                        </div>
+                        <div class="col-md-6">
+                            <small><strong>Text length:</strong> {{ result.text_length }} characters</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
+                    <a href="{{ url_for('index') }}" class="btn btn-primary me-md-2">
+                        <i class="fas fa-plus me-2"></i>
+                        New Prediction
+                    </a>
+                    <button type="button" class="btn btn-outline-secondary" onclick="copyResults()">
+                        <i class="fas fa-copy me-2"></i>
+                        Copy Results
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Input Summary Card -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-file-alt me-2"></i>
+                    Input Summary
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Ticket Type:</strong>
+                    <span class="badge bg-secondary ms-2">{{ result.input_data.ticket_type }}</span>
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Subject:</strong>
+                    <p class="mb-0 mt-2 p-2 bg-light rounded">{{ result.input_data.ticket_subject }}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Description:</strong>
+                    <div class="mt-2 p-2 bg-light rounded" style="max-height: 200px; overflow-y: auto;">
+                        {{ result.input_data.ticket_description }}
+                    </div>
+                </div>
+                
+                {% if result.input_data.product_purchased %}
+                <div class="mb-3">
+                    <strong>Product:</strong>
+                    <span class="badge bg-info ms-2">{{ result.input_data.product_purchased }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Recommendations Card -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-lightbulb me-2"></i>
+                    Recommendations
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if result.predicted_priority in ['High', 'Critical', 'Urgent'] %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>High Priority Ticket</strong><br>
+                        This ticket requires immediate attention. Consider:
+                        <ul class="mb-0 mt-2">
+                            <li>Assign to senior support staff</li>
+                            <li>Set up monitoring for escalation</li>
+                            <li>Contact customer within 1 hour</li>
+                        </ul>
+                    </div>
+                {% elif result.predicted_priority == 'Medium' %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-clock me-2"></i>
+                        <strong>Medium Priority Ticket</strong><br>
+                        This ticket should be addressed promptly:
+                        <ul class="mb-0 mt-2">
+                            <li>Target response within 4 hours</li>
+                            <li>Assign to available support agent</li>
+                            <li>Monitor for customer follow-ups</li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Low Priority Ticket</strong><br>
+                        This ticket can be handled in regular workflow:
+                        <ul class="mb-0 mt-2">
+                            <li>Target response within 24 hours</li>
+                            <li>Can be assigned to junior staff</li>
+                            <li>Good for training purposes</li>
+                        </ul>
+                    </div>
+                {% endif %}
+
+                {% if result.confidence < 0.7 %}
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-user-check me-2"></i>
+                        <strong>Manual Review Suggested</strong><br>
+                        Low confidence score indicates this ticket may benefit from human review.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function copyResults() {
+        const resultText = `
+Ticket Priority Prediction Results
+Generated: {{ result.timestamp }}
+
+Predicted Priority: {{ result.predicted_priority }}
+Confidence: {{ "%.1f" | format(result.confidence * 100) }}%
+
+Input Summary:
+- Type: {{ result.input_data.ticket_type }}
+- Subject: {{ result.input_data.ticket_subject }}
+- Description: {{ result.input_data.ticket_description }}
+{% if result.input_data.product_purchased %}- Product: {{ result.input_data.product_purchased }}{% endif %}
+
+Probability Distribution:
+{% for priority, probability in result.probability_distribution.items() %}- {{ priority }}: {{ "%.1f" | format(probability * 100) }}%
+{% endfor %}
+
+Technical Details:
+- Features processed: {{ result.feature_count }}
+- Text length: {{ result.text_length }} characters
+        `.trim();
+
+        navigator.clipboard.writeText(resultText).then(function() {
+            // Show success message
+            const btn = event.target.closest('button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check me-2"></i>Copied!';
+            btn.classList.remove('btn-outline-secondary');
+            btn.classList.add('btn-success');
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-outline-secondary');
+            }, 2000);
+        }).catch(function(err) {
+            console.error('Could not copy text: ', err);
+            alert('Failed to copy results to clipboard');
+        });
+    }
+
+    // Animate confidence bar on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const indicator = document.querySelector('.confidence-indicator');
+        if (indicator) {
+            const targetWidth = indicator.style.width;
+            indicator.style.width = '0%';
+            setTimeout(() => {
+                indicator.style.width = targetWidth;
+            }, 500);
+        }
+
+        // Animate progress bars
+        const progressBars = document.querySelectorAll('.progress-bar');
+        progressBars.forEach((bar, index) => {
+            const targetWidth = bar.style.width;
+            bar.style.width = '0%';
+            setTimeout(() => {
+                bar.style.width = targetWidth;
+            }, 700 + (index * 100));
+        });
+    });
+</script>
+{% endblock %}

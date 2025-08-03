@@ -29,7 +29,8 @@ class PredictionPipeline:
             
             # Store Excepted Feature count for validation
             self.expected_features = (
-                len(self.feature_info['categorical_features']) + self.feature_info['n_text_features']
+                len(self.feature_info['categorical_features']) + 
+                self.feature_info['n_text_features']
             )
 
             logger.info(f"Prediction Pipeline Initialized Successfully. Expected Feature: {self.expected_features}")
@@ -140,12 +141,12 @@ class PredictionPipeline:
             raise CSPException(e, sys)
         
     def get_model_info(self):
-        """Get Information about the loaded model"""
+        """Get information about the loaded model"""
         try:
             return {
                 'model_type': type(self.model).__name__,
                 'vectorizer_type': type(self.vectorizer).__name__,
-                'priority_classes': type(self.label_encoder.classes_),
+                'priority_classes': list(self.label_encoder.classes_),
                 'n_categorical_features': len(self.feature_info['categorical_features']),
                 'n_text_features': self.feature_info['n_text_features'],
                 'total_features': self.expected_features

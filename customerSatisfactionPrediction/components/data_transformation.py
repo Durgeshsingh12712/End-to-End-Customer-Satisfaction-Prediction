@@ -204,7 +204,7 @@ class DataTransformation:
             save_bin(label_encoder, Path(label_encoder_path))
             save_bin(
                 {
-                    'categotical_features': list(train_categorical.columns) if not train_categorical.empty else [],
+                    'categorical_features': list(train_categorical.columns) if not train_categorical.empty else [],
                     'n_categorical_features': train_categorical.shape[1] if not train_categorical.empty else 0,
                     'n_text_features': train_text_features.shape[1],
                     'label_classes': label_encoder.classes_.tolist()
