@@ -8,7 +8,7 @@ dill
 ensure
 box
 tqdm
-python-box
+python-box[all]
 scipy
 imblearn
 joblib
