@@ -6,11 +6,11 @@ matplotlib
 seaborn
 dill
 ensure
-box
 tqdm
-python-box[all]
+python-box
 scipy
 imblearn
 joblib
 PyYAML
+pytest
 -e .
