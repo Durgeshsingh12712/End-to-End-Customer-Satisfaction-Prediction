@@ -14,6 +14,15 @@
 
 </div>
 
+## **Homepage**
+![My Image](https://github.com/Durgeshsingh12712/Data-All/blob/main/Unified%20Dataset/Unified/customer%201.png)
+
+## **Demo**
+[![Customer Satisfaction Prediction](https://img.youtube.com/vi/etL-1q3lq_k/maxresdefault.jpg)](https://youtu.be/etL-1q3lq_k)
+
+## **My Model Info**
+![My Image](https://github.com/Durgeshsingh12712/Data-All/blob/main/Unified%20Dataset/Unified/customer%202.png)
+
 ---
 
 ## 📋 Table of Contents
